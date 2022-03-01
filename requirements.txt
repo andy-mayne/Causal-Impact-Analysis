@@ -4,3 +4,4 @@ pandas
 causalimpact 
 tensorflow
 numpy
+openpyxl
