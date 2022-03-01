@@ -422,33 +422,28 @@ class CausalImpact(object):
         if output == "summary":
             # Posterior inference {CausalImpact}
             summary = [
-                [mean_resp_fmt, cum_resp_fmt],
-                [mean_pred_fmt, cum_pred_fmt],
-                [mean_ci_fmt, cum_ci_fmt],
-                [" ", " "],
-                [abs_effect_fmt, cum_abs_effect_fmt],
-                [abs_effect_ci_fmt, cum_abs_effect_ci_fmt],
-                [" ", " "],
-                [rel_effect_fmt, cum_rel_effect_fmt],
-                [rel_effect_ci_fmt, cum_rel_effect_ci_fmt],
-                [" ", " "],
-                ["{:.1f}%".format(p_value_perc), " "],
-                ["{:.1f}%".format(prob_causal_perc), " "]
+                [str(mean_resp_fmt), str(cum_resp_fmt)],
+                [str(mean_pred_fmt), str(cum_pred_fmt)],
+                [str(mean_ci_fmt), str(cum_ci_fmt)],
+                [str(abs_effect_fmt), str(cum_abs_effect_fmt)],
+                [str(abs_effect_ci_fmt), str(cum_abs_effect_ci_fmt)],
+                [str(rel_effect_fmt), str(cum_rel_effect_fmt)],
+                [str(rel_effect_ci_fmt), str(cum_rel_effect_ci_fmt)],
+                ["{:.1f}%".format(p_value_perc), ''],
+                ["{:.1f}%".format(prob_causal_perc), '']
             ]
             summary = pd.DataFrame(summary, columns=["Average", "Cumulative"],
                                    index=["Actual",
                                           "Predicted",
                                           "95% CI",
-                                          " ",
                                           "Absolute Effect",
                                           "95% CI",
-                                          " ",
                                           "Relative Effect",
                                           "95% CI",
-                                          " ",
                                           "P-value",
-                                          "Prob. of Causal Effect"])
-            df_print(summary, path)
+                                          "Prob. of Causal Effect"
+                                          ])
+            return summary
         elif output == "report":
             sig = (not ((cum_rel_effect_lower < 0) and
                         (cum_rel_effect_upper > 0)))
@@ -584,13 +579,16 @@ class CausalImpact(object):
                            variables do not correlate well with the response
                            variable during the learning period.""")
 
-            print(textwrap.fill(stmt, width=width))
-            print("\n")
-            print(textwrap.fill(stmt2, width=width))
-            print("\n")
-            print(textwrap.fill(stmt3, width=width))
-            print("\n")
-            print(textwrap.fill(stmt4, width=width))
+            s1 = stmt
+
+            s2 = stmt2
+
+            s3 = stmt3
+
+            s4 = stmt4
+
+
+            return s1, s2, s3, s4
             '''
             if (p < summary.alpha[1]):
                 stmt += """\n\nThe probability of obtaining this effect by
@@ -637,7 +635,7 @@ class CausalImpact(object):
                                 mode='lines',
                                 name='actual',line=dict(color="#44546A")))
 
-            original.update_layout(margin=dict(r=1, l=1, t=1, b=1), xaxis_title='ds', yaxis_title='n', legend=dict(
+            original.update_layout(margin=dict(r=1, l=1, t=1, b=1),template='seaborn', xaxis_title='ds', yaxis_title='n', legend=dict(
                     yanchor="top",
                     y=0.99,
                     xanchor="left",
@@ -675,7 +673,7 @@ class CausalImpact(object):
             pointwise.add_vline(x=data_inter, line_dash="dash", line_color="#C00000")
 
 
-            pointwise.update_layout(margin=dict(r=1, l=1, t=1, b=1), xaxis_title='ds', yaxis_title='n', legend=dict(
+            pointwise.update_layout(margin=dict(r=1, l=1, t=1, b=1),template='seaborn', xaxis_title='ds', yaxis_title='n', legend=dict(
                     yanchor="top",
                     y=0.99,
                     xanchor="left",
@@ -706,7 +704,8 @@ class CausalImpact(object):
             
             cumulative.add_vline(x=data_inter, line_dash="dash", line_color="#C00000")
             
-            cumulative.update_layout(margin=dict(r=1, l=1, t=1, b=1), xaxis_title='ds', yaxis_title='n', legend=dict(
+            cumulative.update_layout(margin=dict(r=1, l=1, t=1, b=1), 
+                    template='seaborn', xaxis_title='ds', yaxis_title='n', legend=dict(
                     yanchor="top",
                     y=0.99,
                     xanchor="left",
