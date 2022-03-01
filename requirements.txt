@@ -1,0 +1,6 @@
+streamlit
+plotly
+pandas
+causalimpact 
+tensorflow
+numpy
