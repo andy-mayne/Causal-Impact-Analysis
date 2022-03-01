@@ -1,20 +1,19 @@
-
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
 import causalimpact 
-import tensorflow
+
 
 st.set_page_config(page_title='Causal Inference',
-                    layout="wide", 
+                    layout='wide', 
                     page_icon='📈'
                     )
 
-st.image("images/1.png", 
+st.image('images/1.png', 
         width=600
         )
 
-st.markdown("## Causal Impact Analysis")
+st.markdown('## Causal Impact Analysis')
 
 st.markdown('''This tool can be used to work out the possible causal effect of an intervention on a time series. 
 For example, how many more patient discharges can we acheive since changing the patient pathway? Answering a question like this can be difficult when a randomised experiment is not possible. 
@@ -42,16 +41,18 @@ if uploaded_file != None:
 
 if uploaded_file != None:
     
-    indexedcolumn = c1.selectbox(label="Date Column",
+    indexedcolumn = c1.selectbox(label='Date Column',
                                  options = df.select_dtypes(include=['datetime64']).columns.values.tolist(), 
                                  help = 'If nothing is showing then you may need to go back to your upload and format the column to a date column.'
                                  )
-    targetcolumn = c2.selectbox(label="Target Column", 
+    targetcolumn = c2.selectbox(label='Target Column', 
                                 options = df.select_dtypes(include=['int16', 'int32', 'int64', 'float16', 'float32', 'float64']).columns.values.tolist(), 
+                                index = 0,
                                 help='This is the column that you are trying to measure the change on.'
                                 )
-    covariatecolumn = c3.selectbox(label="Covariate", 
+    covariatecolumn = c3.selectbox(label='Covariate', 
                                 options = df.select_dtypes(include=['int16', 'int32', 'int64', 'float16', 'float32', 'float64']).columns.values.tolist(), 
+                                index = 1,
                                 help='This is the column that represents the control (the one that was not impacted by the change).'
                                 )
     
@@ -105,6 +106,7 @@ if uploaded_file != None:
         dynamicregression = a6.selectbox(label='Standardise Data', 
                                     index=1, 
                                     options=(True, False), 
+                                    disabled=True,
                                     help='Whether to include time-varying regression coefficients. In combination with a time-varying local trend or even a time-varying local level, this often leads to overspecification, in which case a static regression is safer.'
                                     )
 
@@ -121,64 +123,67 @@ if uploaded_file != None:
     pre_period = [min(df[indexedcolumn]), startchange + pd.DateOffset(-1)]
     post_period = [startchange,max(df[indexedcolumn])]
 
-    df = df[[indexedcolumn,targetcolumn, covariatecolumn]].set_index(indexedcolumn)
+    df2 = df.corr()
 
+    df = df[[indexedcolumn,targetcolumn, covariatecolumn]].set_index(indexedcolumn)
+    
+    x1, x2 = st.columns((4,1))
+    
     st.markdown('#### Time Series of ' + targetcolumn + ' & ' + covariatecolumn)
     st.markdown('''This graph shows the data that has been uploaded and the chosen target and covariate fields. You should check to ensure that the covariate 
-    (orange line) follows the same pattern as the target (blue line), but is **not** impacted by the change you are trying to measure marked in grey.''')
+    (orange line) follows the same pattern as the target (blue line), but is **not** impacted by the change you are trying to measure marked in grey. The correlation score of the current chosen metrics is '''+str(df2[targetcolumn][covariatecolumn]))
 
-    fig2 = go.Figure()
+    fig1 = go.Figure()
 
-    fig2.add_trace(go.Scatter(x=df.index, y=df[targetcolumn],
+    fig1.add_trace(go.Scatter(x=df.index, y=df[targetcolumn],
                     mode='lines',
                     name=targetcolumn, 
-                    line=dict(color="#44546A")
+                    line=dict(color='#44546A')
                     )) 
 
-    fig2.add_trace(go.Scatter(x=df.index, y=df[covariatecolumn],
+    fig1.add_trace(go.Scatter(x=df.index, y=df[covariatecolumn],
                     mode='lines',
                     name=covariatecolumn,
-                    line=dict(color="#ED7D31")
+                    line=dict(color='#ED7D31')
                     )) 
 
-    fig2.update_layout(height = 400, 
+    fig1.update_layout(height = 400, 
                     margin=dict(r=1, l=1, t=1, b=1),
                     xaxis_title=indexedcolumn, 
                     yaxis_title=targetcolumn, 
-                    legend=dict(yanchor="top",
+                    template='seaborn',
+                    legend=dict(yanchor='top',
                     y=0.99,
-                    xanchor="left",
+                    xanchor='left',
                     x=0.01
                 ))
 
-    fig2.add_vrect(x0=startchange, x1=max(df.index), 
-                annotation_text="Change Period", 
-                annotation_position="top left",
-                fillcolor="black", 
+    fig1.add_vrect(x0=startchange, x1=max(df.index), 
+                annotation_text='Change Period', 
+                annotation_position='top left',
+                fillcolor='black', 
                 opacity=0.25, 
                 line_width=0
                 )
 
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig1, use_container_width=True)
 
     impact = causalimpact.CausalImpact(df, 
                                         pre_period, 
                                         post_period, 
-                                        model_args={"niter":mcmcsamples, 
-                                        "nseasons":nseasonseaons,
-                                        "standardize_data":standardise,
-                                        "prior_level_sd":prior_sd,
-                                        "season_duration":seasonalduration,
-                                        "dynamic_regression":dynamicregression}
+                                        model_args={'niter':mcmcsamples, 
+                                        'nseasons':nseasonseaons,
+                                        'standardize_data':standardise,
+                                        'prior_level_sd':prior_sd,
+                                        'season_duration':seasonalduration,
+                                        'dynamic_regression':dynamicregression}
                                         )
 
     impact.run()
 
     originalfig = impact.plot('original')
     pointwisefig = impact.plot('pointwise')
-    cumulativefig = impact.plot('cumulative')
-    summaryinfo = impact.summary()
-    detailedreport = impact.summary("report")
+    cumulativefig = impact.plot('cumulative') 
 
     raw = impact.inferences.to_csv().encode('utf-8')
 
@@ -201,22 +206,25 @@ if uploaded_file != None:
     st.plotly_chart(pointwisefig, 
                     use_container_width=True)
 
-    st.markdown('#### Cumulative impact of change')
+    st.markdown('#### Cumulative Impact of Change')
     st.markdown('''This graph is showing the **cumulative impact** of the change''')
 
     st.plotly_chart(cumulativefig, 
                     use_container_width=True)
 
+
     st.markdown('#### Test Results')
+
+    res1, res2 = st.columns((1,1))
+
+
+    res1.markdown('##### Summary')
+    res1.dataframe(impact.summary())
+
+    s1,s2,s3,s4 = impact.summary(output='report')
+    res2.markdown('##### Detailed Report  ' +s1+'  \n '+s2+'  \n '+s3+'  \n '+s4)
+
     st.download_button('Download Raw Results', raw, file_name='CausalImpactAnalysis.csv')   
-
-    if summaryinfo != None:
-        
-        st.markdown('Summary Information')
-        st.write(summaryinfo)
-
-        st.markdown('Detailed Information')
-        st.write(detailedreport)
 
 with st.expander('Source', expanded=False):
     
