@@ -50,11 +50,6 @@ if uploaded_file != None:
                                 index = 0,
                                 help='This is the column that you are trying to measure the change on.'
                                 )
-    covariatecolumn = c3.selectbox(label='Covariate', 
-                                options = df.select_dtypes(include=['int16', 'int32', 'int64', 'float16', 'float32', 'float64']).columns.values.tolist(), 
-                                index = 1,
-                                help='This is the column that represents the control (the one that was not impacted by the change).'
-                                )
     
     df[indexedcolumn] = pd.to_datetime(df[indexedcolumn])
  
@@ -103,10 +98,9 @@ if uploaded_file != None:
                                 max_value=365,
                                 help='Period of the seasonal components. For example, to add a day-of-week component to the data with daily granularity, Component = 7, Duration = 1). To add a day-of-week component to data with hourly granularity, Component = 7, Duration = 24).'
                                 )
-        dynamicregression = a6.selectbox(label='Standardise Data', 
+        dynamicregression = a6.selectbox(label='Dynamic Regression', 
                                     index=1, 
                                     options=(True, False), 
-                                    disabled=True,
                                     help='Whether to include time-varying regression coefficients. In combination with a time-varying local trend or even a time-varying local level, this often leads to overspecification, in which case a static regression is safer.'
                                     )
 
@@ -125,32 +119,27 @@ if uploaded_file != None:
 
     df2 = df.corr()
 
-    df = df[[indexedcolumn,targetcolumn, covariatecolumn]].set_index(indexedcolumn)
+    df = df.set_index(indexedcolumn)
     
     x1, x2 = st.columns((4,1))
     
-    st.markdown('#### Time Series of ' + targetcolumn + ' & ' + covariatecolumn)
-    st.markdown('''This graph shows the data that has been uploaded and the chosen target and covariate fields. You should check to ensure that the covariate 
-    (orange line) follows the same pattern as the target (blue line), but is **not** impacted by the change you are trying to measure marked in grey. The correlation score of the current chosen metrics is '''+str(df2[targetcolumn][covariatecolumn]))
+    st.markdown('#### Time Series of ' + targetcolumn + ' & Covariates')
+    st.markdown('''This graph shows the data that has been uploaded and the chosen target and covariate fields. You should check to ensure that the covariates 
+    follow the same patterns as the target (blue line), but is **not** impacted by the change you are trying to measure marked in grey. The correlation score of the current chosen metrics is '''+str(df2[targetcolumn][covariatecolumn]))
 
     fig1 = go.Figure()
-
-    fig1.add_trace(go.Scatter(x=df.index, y=df[targetcolumn],
+    
+    for i in df.select_dtypes(include=['int16', 'int32', 'int64', 'float16', 'float32', 'float64']).columns.values.tolist():
+    
+      fig1.add_trace(go.Scatter(x=df.index, y=df[i],
                     mode='lines',
-                    name=targetcolumn, 
-                    line=dict(color='#44546A')
-                    )) 
-
-    fig1.add_trace(go.Scatter(x=df.index, y=df[covariatecolumn],
-                    mode='lines',
-                    name=covariatecolumn,
-                    line=dict(color='#ED7D31')
+                    name=i
                     )) 
 
     fig1.update_layout(height = 400, 
                     margin=dict(r=1, l=1, t=1, b=1),
-                    xaxis_title=indexedcolumn, 
-                    yaxis_title=targetcolumn, 
+                    xaxis_title='ds', 
+                    yaxis_title='n', 
                     template='seaborn',
                     legend=dict(yanchor='top',
                     y=0.99,
