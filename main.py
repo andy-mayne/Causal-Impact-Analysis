@@ -59,6 +59,12 @@ if uploaded_file != None:
                                 value = max(df[indexedcolumn])+pd.DateOffset(-30), 
                                 help='The intervention was the date you made the change'
                                 )
+  
+    fitmethod = c4.selectbox(label='Fit Method', 
+                                options = ['vi','hmc'], 
+                                index = 0,
+                                help='''Which method to use when fitting the structural time series model. Can be either `hmc` which stands for "Hamiltonian Monte Carlo" or "vi", i.e., "variational inference". The first is slower but more accurate whilst the latter is the opposite. Defaults to `vi` which prioritizes performance.'''
+                                )
 
     r1,r2,r3,r4 = st.columns((1,1,1,1))
 
