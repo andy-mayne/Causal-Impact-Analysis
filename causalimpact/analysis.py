@@ -429,8 +429,8 @@ class CausalImpact(object):
                 [str(abs_effect_ci_fmt), str(cum_abs_effect_ci_fmt)],
                 [str(rel_effect_fmt), str(cum_rel_effect_fmt)],
                 [str(rel_effect_ci_fmt), str(cum_rel_effect_ci_fmt)],
-                [str(p_value_perc), str(p_value)],
-                [str(prob_causal_perc), str(z_score)]
+                [str(p_value_perc), ''],
+                [str(prob_causal_perc), '']
             ]
             summary = pd.DataFrame(summary, columns=["Average", "Cumulative"],
                                    index=["Actual",
