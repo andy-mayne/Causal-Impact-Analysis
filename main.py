@@ -124,7 +124,7 @@ if uploaded_file != None:
     x1, x2 = st.columns((4,1))
     
     st.markdown('#### Time Series of ' + targetcolumn + ' & Covariates')
-    st.markdown('''This graph shows the data that has been uploaded and the chosen target and covariate fields. You should check to ensure that the covariates follow the same patterns as the target (blue line), but is **not** impacted by the change you are trying to measure marked in grey.)
+    st.markdown('''This graph shows the data that has been uploaded and the chosen target and covariate fields. You should check to ensure that the covariates follow the same patterns as the target (blue line), but is **not** impacted by the change you are trying to measure marked in grey.''')
 
     fig1 = go.Figure()
     
