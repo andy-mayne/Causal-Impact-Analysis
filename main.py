@@ -53,7 +53,7 @@ if uploaded_file != None:
     
     df[indexedcolumn] = pd.to_datetime(df[indexedcolumn])
  
-    startchange = c4.date_input(label='Intervention Date', 
+    startchange = c3.date_input(label='Intervention Date', 
                                 min_value = min(df[indexedcolumn]), 
                                 max_value = max(df[indexedcolumn]), 
                                 value = max(df[indexedcolumn])+pd.DateOffset(-30), 
@@ -116,8 +116,6 @@ if uploaded_file != None:
 
     pre_period = [min(df[indexedcolumn]), startchange + pd.DateOffset(-1)]
     post_period = [startchange,max(df[indexedcolumn])]
-
-    df2 = df.corr()
 
     df = df.set_index(indexedcolumn)
     
