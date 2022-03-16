@@ -117,6 +117,7 @@ if uploaded_file != None:
         nseasonseaons = 1
         seasonalduration = 1
         dynamicregression = False
+        
 
     startchange = pd.to_datetime(startchange)
 
@@ -164,6 +165,7 @@ if uploaded_file != None:
                                         pre_period, 
                                         post_period, 
                                         model_args={'niter':mcmcsamples, 
+                                        'fit_method': fitmethod,
                                         'nseasons':nseasonseaons,
                                         'standardize_data':standardise,
                                         'prior_level_sd':prior_sd,
