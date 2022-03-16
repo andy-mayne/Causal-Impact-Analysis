@@ -428,9 +428,9 @@ class CausalImpact(object):
                 [str(abs_effect_fmt), str(cum_abs_effect_fmt)],
                 [str(abs_effect_ci_fmt), str(cum_abs_effect_ci_fmt)],
                 [str(rel_effect_fmt), str(cum_rel_effect_fmt)],
-                [str(rel_effect_ci_fmt), str(cum_rel_effect_ci_fmt)],
-                [str(p_value_perc), ''],
-                [str(prob_causal_perc), '']
+                [str(rel_effect_ci_fmt), str(cum_rel_effect_ci_fmt)]
+                #[str(p_value_perc), ''],
+                #[str(prob_causal_perc), '']
             ]
             summary = pd.DataFrame(summary, columns=["Average", "Cumulative"],
                                    index=["Actual",
@@ -439,9 +439,9 @@ class CausalImpact(object):
                                           "Absolute Effect",
                                           "95% CI",
                                           "Relative Effect",
-                                          "95% CI",
-                                          "P-value",
-                                          "Prob. of Causal Effect"
+                                          "95% CI"
+                                          #"P-value",
+                                          #"Prob. of Causal Effect"
                                           ])
             return summary
         elif output == "report":
